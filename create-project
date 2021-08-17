@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+from datetime import datetime
 from os import mkdir, system, path
 from sys import argv
 import os.path
 from sys import stderr
+from pathlib import Path
 
 
 def get_script_name(project_name: str) -> str:
@@ -53,6 +55,7 @@ except FileExistsError:
 
 
 script_name = get_script_name(os.path.basename(project_path))
+home_path = str(Path.home())
 
 _gitignore = r'''# Byte-compiled / optimized / DLL files
 __pycache__/
@@ -266,7 +269,7 @@ pip install -r requirements.txt
 
 license_ = rf'''MIT License
 
-Copyright (c) 2021 Pendosv
+Copyright (c) {datetime.now().year} {os.getlogin()}
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -304,5 +307,10 @@ for filename, content in files:
     with open(path.join(project_path, filename), 'w') as f:
         f.write(content)
 
-system(f'virtualenv {path.join(project_path, "venv")}')
-system(f'chmod +x {path.join(project_path, script_name)}')
+system(f'virtualenv {path.join(project_path, "venv")}')  # виртуальное окружение
+system(f'chmod +x {path.join(project_path, script_name)}')  # разрешение на запуск
+
+home_bin = path.join(home_path, 'bin')
+if path.exists(home_bin) and path.isdir(home_bin):  # если существует папка /home/user/bin
+    system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')  # создает символическую ссылку
+
