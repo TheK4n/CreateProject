@@ -10,6 +10,7 @@ from pathlib import Path
 def get_script_name(project_name: str) -> str:
     g = (i for i in project_name)
     shift = 0
+    flag = False
     for i in range(len(project_name)):
         char = next(g)
 
@@ -17,24 +18,22 @@ def get_script_name(project_name: str) -> str:
             start_ = project_name[:i + shift]
             end_ = project_name[i + shift:]
 
-            project_name = start_ + '_' + end_
+            try:
+                if end_[1].isupper():
+                    if not flag:
+                        flag = True
+                    else:
+                        continue
+            except IndexError:
+                continue
+            project_name = start_ + '-' + end_
             shift += 1
 
     return project_name.lower()
 
 
-def is_project_name_camelcase(project_name: str) -> bool:
-
-    if project_name[0].islower():
-        return False
-
-    if project_name.islower():
-        return False
-
-    for i in ['-', '_']:
-        if i in project_name:
-            return False
-    return True
+def is_camel_case(string):
+    return string != string.lower() and string != string.upper() and "_" not in string and "-" not in string
 
 
 project_path = ''
@@ -44,7 +43,7 @@ except IndexError:
     print('[X] Enter name', file=stderr)
     exit(-1)
 
-if not is_project_name_camelcase(project_path):
+if not is_camel_case(project_path):
     print(f'"{project_path}" is not CamelCase', file=stderr)
     exit(-1)
 
