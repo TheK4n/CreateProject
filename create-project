@@ -171,6 +171,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+.idea
+*.iml
+out
+gen
+
 '''
 
 main_py = r'''#!/usr/bin/env python3
