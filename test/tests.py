@@ -2,6 +2,7 @@ import unittest
 
 
 def get_script_name(project_name: str) -> str:
+    project_name = project_name.strip()
     g = (i for i in project_name)
     shift = 0
     flag = False
@@ -23,7 +24,7 @@ def get_script_name(project_name: str) -> str:
             project_name = start_ + '-' + end_
             shift += 1
 
-    return project_name.lower()
+    return project_name.lower().strip()
 
 
 def is_camel_case(string):
@@ -37,8 +38,9 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(get_script_name('ImageCrypt'), 'image-crypt')
         self.assertEqual(get_script_name('imagecrypt'), 'imagecrypt')
         self.assertEqual(get_script_name('imagecryptT'), 'imagecryptt')
-        self.assertEqual(get_script_name('ImageCryptTEST'), 'image-crypt-test')  #
-        self.assertEqual(get_script_name('ImageCRYPTTest'), 'image-crypt-test')  #
+        self.assertEqual(get_script_name('ImageCryptTEST'), 'image-crypt-test')
+        self.assertEqual(get_script_name('ImageCRYPTTest'), 'image-crypt-test')
+        self.assertEqual(get_script_name('IMAGECryptTest'), 'image-crypt-test')
 
         self.assertEqual(get_script_name('ImageCryptSave'), 'image-crypt-save')
         self.assertEqual(get_script_name('ImageCryptSave'), 'image-crypt-save')
