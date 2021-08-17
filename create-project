@@ -17,7 +17,7 @@ def get_script_name(project_name: str) -> str:
             start_ = project_name[:i + shift]
             end_ = project_name[i + shift:]
 
-            project_name = start_ + '-' + end_
+            project_name = start_ + '_' + end_
             shift += 1
 
     return project_name.lower()
@@ -201,7 +201,6 @@ utils_py = '''__all__ = []
 '''
 
 tests_py = fr'''import unittest
-from {script_name.replace('-', '_')} import *
 from src.utils import *
 
 
@@ -314,6 +313,9 @@ if os.name == 'posix':
 
 if '--link' in argv:
     home_bin = path.join(home_path, 'bin')
-    if path.exists(home_bin) and path.isdir(home_bin):  # если существует папка /home/user/bin
+
+    # если существует папка /home/user/bin
+    if path.exists(home_bin) and path.isdir(home_bin):
+
         # создает символическую ссылку в /home/user/bin
         system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')
