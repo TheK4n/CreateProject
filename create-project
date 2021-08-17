@@ -37,6 +37,7 @@ def is_project_name_camelcase(project_name: str) -> bool:
     return True
 
 
+project_path = ''
 try:
     project_path = argv[1]
 except IndexError:
@@ -316,4 +317,3 @@ if '--link' in argv:
     if path.exists(home_bin) and path.isdir(home_bin):  # если существует папка /home/user/bin
         # создает символическую ссылку в /home/user/bin
         system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')
-
