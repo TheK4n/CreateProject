@@ -293,7 +293,7 @@ SOFTWARE.
 mkdir(path.join(project_path, 'src'))
 mkdir(path.join(project_path, 'test'))
 
-files = [
+files = (
     ('.gitignore', _gitignore),
     ('README.md', readme_md),
     (script_name, main_py),
@@ -301,16 +301,19 @@ files = [
     ('LICENSE', license_),
     (path.join('test', 'tests.py'), tests_py),
     (path.join('src', 'utils.py'), utils_py)
-]
+)
 
 for filename, content in files:
     with open(path.join(project_path, filename), 'w') as f:
         f.write(content)
 
 system(f'virtualenv {path.join(project_path, "venv")}')  # виртуальное окружение
-system(f'chmod +x {path.join(project_path, script_name)}')  # разрешение на запуск
+if os.name == 'posix':
+    system(f'chmod +x {path.join(project_path, script_name)}')  # разрешение на запуск
 
-home_bin = path.join(home_path, 'bin')
-if path.exists(home_bin) and path.isdir(home_bin):  # если существует папка /home/user/bin
-    system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')  # создает символическую ссылку
+if '--link' in argv:
+    home_bin = path.join(home_path, 'bin')
+    if path.exists(home_bin) and path.isdir(home_bin):  # если существует папка /home/user/bin
+        # создает символическую ссылку в /home/user/bin
+        system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')
 
