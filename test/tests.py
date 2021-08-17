@@ -9,22 +9,23 @@ def get_script_name(project_name: str) -> str:
     for i in range(len(project_name)):
         char = next(g)
 
-        if char.isupper() and i > 0:
+        if char.isupper():
             start_ = project_name[:i + shift]
             end_ = project_name[i + shift:]
-
             try:
                 if end_[1].isupper():
                     if not flag:
                         flag = True
                     else:
                         continue
+                else:
+                    flag = False
             except IndexError:
                 continue
             project_name = start_ + '-' + end_
             shift += 1
 
-    return project_name.lower().strip()
+    return project_name.lower().strip('-').strip()
 
 
 def is_camel_case(string):
@@ -41,6 +42,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(get_script_name('ImageCryptTEST'), 'image-crypt-test')
         self.assertEqual(get_script_name('ImageCRYPTTest'), 'image-crypt-test')
         self.assertEqual(get_script_name('IMAGECryptTest'), 'image-crypt-test')
+        self.assertEqual(get_script_name('IMAGECryptTEST'), 'image-crypt-test')
 
         self.assertEqual(get_script_name('ImageCryptSave'), 'image-crypt-save')
         self.assertEqual(get_script_name('ImageCryptSave'), 'image-crypt-save')
