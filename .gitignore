@@ -146,3 +146,6 @@ cython_debug/
 *.iml
 out
 gen
+
+
+_trial_temp
