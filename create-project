@@ -1,322 +1,67 @@
 #!/usr/bin/env python3
+
 from datetime import datetime
-from os import mkdir, system, path
-from sys import argv
-import os.path
-from sys import stderr
+
+from os import system, path, name, mkdir
+from sys import argv, stderr
+
 from pathlib import Path
 
-
-def get_script_name(project_name: str) -> str:
-    project_name = project_name.strip()
-    g = (i for i in project_name)
-    shift = 0
-    flag = False
-    for i in range(len(project_name)):
-        char = next(g)
-
-        if char.isupper():
-            start_ = project_name[:i + shift]
-            end_ = project_name[i + shift:]
-            try:
-                if end_[1].isupper():
-                    if not flag:
-                        flag = True
-                    else:
-                        continue
-                else:
-                    flag = False
-            except IndexError:
-                continue
-            project_name = start_ + '-' + end_
-            shift += 1
-
-    return project_name.lower().strip('-').strip()
-
-
-def is_camel_case(string):
-    return string != string.lower() and string != string.upper() and "_" not in string and "-" not in string
-
-
-project_path = ''
-try:
-    project_path = argv[1]
-except IndexError:
-    print('[X] Enter name', file=stderr)
-    exit(-1)
-
-if not is_camel_case(project_path):
-    print(f'"{project_path}" is not CamelCase', file=stderr)
-    exit(-1)
-
-try:
-    mkdir(project_path)
-except FileExistsError:
-    print(f'[X] Project <{project_path}> exists', file=stderr)
-    exit(-1)
-
-
-script_name = get_script_name(os.path.basename(project_path))
-home_path = str(Path.home())
-
-_gitignore = r'''# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Logs
-*.log
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-local_settings.py
-db.sqlite3
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# celery beat schedule file
-celerybeat-schedule
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-.idea
-*.iml
-out
-gen
-
-'''
-
-main_py = r'''#!/usr/bin/env python3
-
-from sys import argv
+from src.content import *
 from src.utils import *
 
 
-def main(args: list[str]):
-    pass
+def main():
+
+    project_path = ''
+    try:
+        project_path = argv[1]
+    except IndexError:
+        print('[X] Enter name', file=stderr)
+        exit(-1)
+
+    if not is_camel_case(project_path):
+        print(f'"{project_path}" is not CamelCase', file=stderr)
+        exit(-1)
+
+    try:
+        mkdir(project_path)
+    except FileExistsError:
+        print(f'[X] Project <{project_path}> exists', file=stderr)
+        exit(-1)
+
+    script_name = get_script_name(path.basename(project_path))
+    github_nickname = 'Pendosv'
+
+    dirs = ['test', 'src']
+    files = (
+        ('.gitignore', gitignore),
+        ('README.md',
+         readme_md.format(project_path=project_path, github_nickname=github_nickname, script_name=script_name)),
+        (script_name, main_py),
+        ('requirements.txt', ''),
+        ('LICENSE', license_.format(year=datetime.now().year, github_nickname=github_nickname)),
+        (path.join(dirs[0], 'tests.py'), tests_py),
+        (path.join(dirs[1], 'utils.py'), utils_py)
+    )
+
+    make_dirs(project_path, dirs)
+    write_files(project_path, files)
+
+    system(f'virtualenv {path.join(project_path, "venv")}')  # виртуальное окружение
+
+    if name == 'posix':
+        system(f'chmod u+x {path.join(project_path, script_name)}')  # разрешение на запуск
+
+    if '--link' in argv:
+        home_path = str(Path.home())
+        home_bin = path.join(home_path, 'bin')
+
+        # если существует папка /home/user/bin
+        if path.exists(home_bin) and path.isdir(home_bin):
+            # создает символическую ссылку в /home/user/bin
+            system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')
 
 
 if __name__ == '__main__':
-    main(argv[1:])
-'''
-
-utils_py = '''__all__ = []
-'''
-
-tests_py = fr'''import unittest
-from src.utils import *
-
-
-class TestMain(unittest.TestCase):
-    def test(self):
-        self.assertEqual(True, 1)
-
-
-if __name__ == '__main__':
-    unittest.main()
-'''
-
-readme_md = rf'''<h1 align="center">{project_path}</h1>
-
-<p align="center">
-  <a href="https://github.com/Pendosv">
-    <img src="https://img.shields.io/github/followers/Pendosv?label=Follow&style=social">
-  </a>
-  <a href="https://github.com/Pendosv/{project_path}">
-    <img src="https://img.shields.io/github/stars/Pendosv/{project_path}?style=social">
-  </a>
-</p>
-
----
-
-## Content
-* [Project description](#chapter-0)
-* [Installation](#chapter-1)  
-* [Usage](#chapter-2)
-
-
-<a id="chapter-0"></a>
-## Project description
-
-<a id="chapter-1"></a>
-## Installation
-
-Clone repository, install virtual environment and installing dependencies:
-
-```bash
-git clone https://github.com/Pendosv/{project_path}.git
-cd {project_path}
-virtualenv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-
-<a id="chapter-2"></a>
-## Usage
-
-
-
----
-
-<p align="center">
-  Contact with me
-</p>
-<p align="center">
-  <a href="https://T.me/Pend0s">
-    <img src="https://raw.githubusercontent.com/Pendosv/Pendosv/master/img/telegram.png" width="40" height="40">
-  </a>
-    <a href="mailto:djvlad967891@gmail.com">
-        <img src="https://raw.githubusercontent.com/Pendosv/Pendosv/master/img/mail.png" width="40" height="40">
-      </a>
-</p>'''
-
-license_ = rf'''MIT License
-
-Copyright (c) {datetime.now().year} {os.getlogin()}
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-'''
-
-mkdir(path.join(project_path, 'src'))
-mkdir(path.join(project_path, 'test'))
-
-files = (
-    ('.gitignore', _gitignore),
-    ('README.md', readme_md),
-    (script_name, main_py),
-    ('requirements.txt', ''),
-    ('LICENSE', license_),
-    (path.join('test', 'tests.py'), tests_py),
-    (path.join('src', 'utils.py'), utils_py)
-)
-
-for filename, content in files:
-    with open(path.join(project_path, filename), 'w') as f:
-        f.write(content)
-
-system(f'virtualenv {path.join(project_path, "venv")}')  # виртуальное окружение
-if os.name == 'posix':
-    system(f'chmod +x {path.join(project_path, script_name)}')  # разрешение на запуск
-
-if '--link' in argv:
-    home_bin = path.join(home_path, 'bin')
-
-    # если существует папка /home/user/bin
-    if path.exists(home_bin) and path.isdir(home_bin):
-
-        # создает символическую ссылку в /home/user/bin
-        system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')
+    main()

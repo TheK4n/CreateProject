@@ -1,35 +1,5 @@
 import unittest
-
-
-def get_script_name(project_name: str) -> str:
-    project_name = project_name.strip()
-    g = (i for i in project_name)
-    shift = 0
-    flag = False
-    for i in range(len(project_name)):
-        char = next(g)
-
-        if char.isupper():
-            start_ = project_name[:i + shift]
-            end_ = project_name[i + shift:]
-            try:
-                if end_[1].isupper():
-                    if not flag:
-                        flag = True
-                    else:
-                        continue
-                else:
-                    flag = False
-            except IndexError:
-                continue
-            project_name = start_ + '-' + end_
-            shift += 1
-
-    return project_name.lower().strip('-').strip()
-
-
-def is_camel_case(string):
-    return string != string.lower() and string != string.upper() and "_" not in string and "-" not in string
+from src.utils import *
 
 
 class MyTestCase(unittest.TestCase):
