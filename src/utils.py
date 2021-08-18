@@ -40,7 +40,7 @@ def is_camel_case(string):
     return string != string.lower() and string != string.upper() and not bid
 
 
-def make_dirs(project_path, dirs):
+def make_dirs(project_path, dirs: list[str]):
     for i in dirs:
         mkdir(path.join(project_path, i))
 
