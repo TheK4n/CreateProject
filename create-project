@@ -2,7 +2,7 @@
 import subprocess
 from datetime import datetime
 
-from os import system, path, name, mkdir, chdir
+from os import system, path, name, mkdir
 from sys import argv, stderr
 
 from pathlib import Path
@@ -18,17 +18,17 @@ def main():
         project_path = argv[1]
     except IndexError:
         print('[X] Enter name', file=stderr)
-        exit(-1)
+        exit(1)
 
     if not is_camel_case(project_path):
         print(f'"{project_path}" is not CamelCase', file=stderr)
-        exit(-1)
+        exit(1)
 
     try:
         mkdir(project_path)
     except FileExistsError:
         print(f'[X] Project <{project_path}> exists', file=stderr)
-        exit(-1)
+        exit(1)
 
     script_name = get_script_name(path.basename(project_path))
     github_nickname = subprocess.check_output(['git', 'config', 'user.name']).decode().strip()
@@ -49,6 +49,7 @@ def main():
     write_files(project_path, files)
 
     system(f'virtualenv {path.join(project_path, "venv")}')  # виртуальное окружение
+    git_init(project_path)
 
     if name == 'posix':
         system(f'chmod u+x {path.join(project_path, script_name)}')  # разрешение на запуск
@@ -64,11 +65,6 @@ def main():
         if '--secret' in argv:
             # рекурсивно запрещает всем читать, изменять, выполнять проект
             system(f'chmod og-rwx -R {project_path}')
-
-    chdir(project_path)
-    system('git init')
-    system('git add .')
-    system('git commit -m "Initial commit"')
 
 
 if __name__ == '__main__':

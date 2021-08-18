@@ -1,13 +1,12 @@
-from os import mkdir, path
+from os import mkdir, path, system, chdir
 
-__all__ = ['get_script_name', 'is_camel_case', 'make_dirs', 'write_files']
+__all__ = ['get_script_name', 'is_camel_case', 'make_dirs', 'write_files', 'git_init']
 
 
 def get_script_name(project_name: str, splitter: str = '-') -> str:
     project_name = project_name.strip()
 
     if project_name[0] == '.':
-        point_flag = True
         project_name = project_name[1:]
 
     g = (i for i in project_name)  # генератор
@@ -54,3 +53,11 @@ def write_files(project_path, files):
     for filename, content in files:
         with open(path.join(project_path, filename), 'w') as f:
             f.write(content)
+
+
+def git_init(project_path):
+    chdir(project_path)
+    system('git init')
+    system('git add .')
+    system('git commit -m "Initial commit"')
+    chdir('..')
