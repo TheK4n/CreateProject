@@ -16,7 +16,9 @@ class MyTestCase(unittest.TestCase):
 
         self.assertEqual(get_script_name('ImageCryptSave'), 'image-crypt-save')
         self.assertEqual(get_script_name('ImageCryptSave'), 'image-crypt-save')
-        self.assertEqual(get_script_name('ImageCryptSave'), 'image-crypt-save')
+
+        self.assertEqual(get_script_name('.ImageCryptSave'), 'image-crypt-save')
+        self.assertEqual(get_script_name('ImageCryptSave.'), 'image-crypt-save.')
 
         self.assertEqual(get_script_name('ImageCryptSaveSegaMegaDriveUltraSuper'),
                          'image-crypt-save-sega-mega-drive-ultra-super')

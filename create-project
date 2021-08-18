@@ -2,7 +2,7 @@
 import subprocess
 from datetime import datetime
 
-from os import system, path, name, mkdir
+from os import system, path, name, mkdir, chdir
 from sys import argv, stderr
 
 from pathlib import Path
@@ -52,15 +52,23 @@ def main():
 
     if name == 'posix':
         system(f'chmod u+x {path.join(project_path, script_name)}')  # разрешение на запуск
+        if '--link' in argv:
+            home_path = str(Path.home())
+            home_bin = path.join(home_path, 'bin')
 
-    if '--link' in argv:
-        home_path = str(Path.home())
-        home_bin = path.join(home_path, 'bin')
+            # если существует папка /home/user/bin
+            if path.exists(home_bin) and path.isdir(home_bin):
+                # создает символическую ссылку в /home/user/bin
+                system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')
 
-        # если существует папка /home/user/bin
-        if path.exists(home_bin) and path.isdir(home_bin):
-            # создает символическую ссылку в /home/user/bin
-            system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')
+        if '--secret' in argv:
+            # рекурсивно запрещает всем читать, изменять, выполнять проект
+            system(f'chmod og-rwx -R {project_path}')
+
+    chdir(project_path)
+    system('git init')
+    system('git add .')
+    system('git commit -m "Initial commit"')
 
 
 if __name__ == '__main__':

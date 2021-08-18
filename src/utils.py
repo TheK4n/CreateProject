@@ -5,6 +5,11 @@ __all__ = ['get_script_name', 'is_camel_case', 'make_dirs', 'write_files']
 
 def get_script_name(project_name: str, splitter: str = '-') -> str:
     project_name = project_name.strip()
+
+    if project_name[0] == '.':
+        point_flag = True
+        project_name = project_name[1:]
+
     g = (i for i in project_name)  # генератор
     shift = 0  # сдвиг
     flag = False  # флаг если 2 подряд большие буквы
