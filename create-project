@@ -4,18 +4,16 @@ from datetime import datetime
 import argparse
 
 from os import system, path, mkdir, name
-from sys import argv, stderr
 
 from src.content import *
 from src.utils import *
 
 
-argparse.ArgumentParser()
 parser = argparse.ArgumentParser(description='Creates python project, initialize git repository '
                                              'and creates virtual environment')
 
 parser.add_argument(dest='project_name', nargs='+',
-                    help='project name must be CamelCase')
+                    help='name of python project (must be CamelCase)')
 
 parser.add_argument('-s', '--secure', dest='secure', action='store_true',
                     help='makes project secure')
@@ -39,31 +37,26 @@ parser.add_argument('--license', dest='license_', action='store', default=None,
 args = parser.parse_args()
 
 
-script_basename = path.basename(argv[0])
-
-
-def error_pars(msg: str):
-    print(f'{script_basename}: error: {msg}', file=stderr)
-    exit(1)
-
-
 def create_project(project_path):
 
     if not is_camel_case(project_path):
-        error_pars(f'"{project_path}" must be CamelCase')
+        error_pars(parser.prog, f'"{project_path}" must be CamelCase')
+        return
 
     if args.script_name is None:
         script_name = get_script_name(path.basename(project_path))
     else:
         if len(args.project_name) > 1:
-            error_pars('you can\'t use --create-link and --script-name together if more then 1 project')
+            error_pars(parser.prog, 'you can\'t use --create-link and --script-name together if more then 1 project')
+            return
         else:
             script_name = args.script_name
 
     try:
         mkdir(project_path)
     except FileExistsError:
-        error_pars(f'project "{project_path}" already exists')
+        error_pars(parser.prog, f'project "{project_path}" already exists')
+        return
 
     if args.git_login is None:
         github_nickname = subprocess.check_output(['git', 'config', 'user.name']).decode().strip()
@@ -97,9 +90,11 @@ def create_project(project_path):
             try:
                 create_symbolic_link(link_path)
             except FileNotFoundError as e:
-                error_pars(str(e))
+                error_pars(parser.prog, str(e))
+                return
             except FileExistsError:
-                error_pars(f'{link_path} already exists')
+                error_pars(parser.prog, f'{link_path} already exists')
+                return
 
         if args.secure:
             secret(project_path)

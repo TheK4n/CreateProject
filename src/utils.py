@@ -1,7 +1,10 @@
 from os import mkdir, path, system, chdir
 from pathlib import Path
 
-__all__ = ['get_script_name', 'is_camel_case', 'make_dirs', 'write_files', 'git_init', 'create_symbolic_link', 'secret']
+__all__ = ['get_script_name', 'is_camel_case', 'make_dirs', 'write_files',
+           'git_init', 'create_symbolic_link', 'secret', 'error_pars']
+
+from sys import stderr
 
 
 def get_script_name(project_name: str, splitter: str = '-') -> str:
@@ -82,3 +85,8 @@ def create_symbolic_link(link_path):
 def secret(project_path):
     # рекурсивно запрещает всем читать, изменять, выполнять проект
     system(f'chmod og-rwx -R {project_path}')
+
+
+def error_pars(script_name, msg: str):
+    print(f'{script_name}: error: {msg}', file=stderr)
+    exit(1)
