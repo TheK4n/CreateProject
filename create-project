@@ -31,7 +31,7 @@ parser.add_argument('--git-login', dest='git_login', action='store', default=Non
                     help='GitHub login')
 
 parser.add_argument('--license', dest='license_', action='store', default='mit',
-                    choices=licenses.values(),
+                    choices=list(licenses.keys()),
                     help='license for your project')
 
 args = parser.parse_args()
