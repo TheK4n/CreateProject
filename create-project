@@ -30,7 +30,7 @@ parser.add_argument('--script-name', dest='script_name', action='store', default
 parser.add_argument('--git-login', dest='git_login', action='store', default=None,
                     help='GitHub login')
 
-parser.add_argument('--license', dest='license_', action='store', default=None,
+parser.add_argument('--license', dest='license_', action='store', default='mit',
                     choices=['mit', 'apache'],
                     help='License for your project')
 
