@@ -1,12 +1,42 @@
 #!/usr/bin/env python3
 import subprocess
 from datetime import datetime
+import argparse
 
 from os import system, path, mkdir, name
 from sys import argv, stderr
 
 from src.content import *
 from src.utils import *
+
+
+argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description='Creates python project, initialize git repository '
+                                             'and creates virtual environment')
+
+parser.add_argument(dest='project_name', nargs='+',
+                    help='project name must be CamelCase')
+
+parser.add_argument('-s', '--secure', dest='secure', action='store_true',
+                    help='makes project secure')
+
+parser.add_argument('-q', '--quiet', dest='quiet', action='store_true',
+                    help='quiet mode')
+
+parser.add_argument('--create-link', dest='create_link', action='store_true',
+                    help='creates symbolic link in ~/bin')
+
+parser.add_argument('--script-name', dest='script_name', action='store', default=None,
+                    help='name of main script')
+
+parser.add_argument('--git-login', dest='git_login', action='store', default=None,
+                    help='GitHub login')
+
+parser.add_argument('--license', dest='license_', action='store', default=None,
+                    choices=['mit', 'apache'],
+                    help='License for your project')
+
+args = parser.parse_args()
 
 
 script_basename = path.basename(argv[0])
@@ -17,53 +47,67 @@ def error_pars(msg: str):
     exit(1)
 
 
-def main():
-
-    project_path = ''
-    try:
-        project_path = argv[1]
-    except IndexError:
-        error_pars('enter name')
+def create_project(project_path):
 
     if not is_camel_case(project_path):
         error_pars(f'"{project_path}" must be CamelCase')
 
+    if args.script_name is None:
+        script_name = get_script_name(path.basename(project_path))
+    else:
+        if len(args.project_name) > 1:
+            error_pars('you can\'t use --create-link and --script-name together if more then 1 project')
+        else:
+            script_name = args.script_name
+
     try:
         mkdir(project_path)
     except FileExistsError:
-        error_pars(f'project "{project_path}" exists')
+        error_pars(f'project "{project_path}" already exists')
 
-    script_name = get_script_name(path.basename(project_path))
-    github_nickname = subprocess.check_output(['git', 'config', 'user.name']).decode().strip()
+    if args.git_login is None:
+        github_nickname = subprocess.check_output(['git', 'config', 'user.name']).decode().strip()
+    else:
+        github_nickname = args.git_login
 
     dirs = ['test', 'src']
+    licenses = {'mit': mit, 'apache': apache}
     files = (
         ('.gitignore', gitignore),
         ('README.md',
          readme_md.format(project_path=project_path, github_nickname=github_nickname, script_name=script_name)),
         (script_name, main_py),
         ('requirements.txt', ''),
-        ('LICENSE', license_.format(year=datetime.now().year, github_nickname=github_nickname)),
+        ('LICENSE', licenses[args.license_].format(year=datetime.now().year, github_nickname=github_nickname)),
         (path.join(dirs[0], 'tests.py'), tests_py),
         (path.join(dirs[1], 'utils.py'), utils_py)
     )
 
     make_dirs(project_path, dirs)
     write_files(project_path, files)
-    system(f'virtualenv {path.join(project_path, "venv")}')  # виртуальное окружение
+    system(f'virtualenv {path.join(project_path, "venv")} {"--quiet" if args.quiet else ""}')  # виртуальное окружение
     git_init(project_path)
 
     if name == 'posix':
         system(f'chmod u+x {path.join(project_path, script_name)}')  # разрешение на запуск
 
-        if '--link' in argv:
+        if args.create_link:
+
+            link_path = path.abspath(path.join(project_path, script_name))
             try:
-                create_symbolic_link(project_path, script_name)
+                create_symbolic_link(link_path)
             except FileNotFoundError as e:
                 error_pars(str(e))
+            except FileExistsError:
+                error_pars(f'{link_path} already exists')
 
-        if '--secret' in argv:
+        if args.secure:
             secret(project_path)
+
+
+def main():
+    for project in args.project_name:
+        create_project(project)
 
 
 if __name__ == '__main__':

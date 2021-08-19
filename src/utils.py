@@ -56,24 +56,27 @@ def write_files(project_path, files):
             f.write(content)
 
 
-def git_init(project_path):
+def git_init(project_path, is_quiet=False):
     chdir(project_path)
-    system('git init')
-    system('git add .')
-    system('git commit -m "Initial commit"')
+    system(f'git init {"--quiet" if is_quiet else ""}')
+    system(f'git add . {"--quiet" if is_quiet else ""}')
+    system(f'git commit -m "Initial commit" {"--quiet" if is_quiet else ""}')
     chdir('..')
 
 
-def create_symbolic_link(project_path, script_name: str):
+def create_symbolic_link(link_path):
     home_path = str(Path.home())
     home_bin = path.join(home_path, 'bin')
 
-    # если существует папка /home/user/bin
-    if path.exists(home_bin) and path.isdir(home_bin):
-        # создает символическую ссылку в /home/user/bin
-        system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')
+    if path.exists(link_path):
+        # если существует папка /home/user/bin
+        if path.exists(home_bin) and path.isdir(home_bin):
+            # создает символическую ссылку в /home/user/bin
+            system(f'ln -s {link_path} {home_bin}')
+        else:
+            raise FileNotFoundError(f'"{home_bin}" doesn\'t exists')
     else:
-        raise FileNotFoundError(f'"{home_bin}" doesn\'t exists')
+        raise FileExistsError
 
 
 def secret(project_path):
