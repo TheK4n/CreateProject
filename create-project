@@ -2,13 +2,19 @@
 import subprocess
 from datetime import datetime
 
-from os import system, path, name, mkdir
+from os import system, path, mkdir
 from sys import argv, stderr
-
-from pathlib import Path
 
 from src.content import *
 from src.utils import *
+
+
+script_basename = path.basename(argv[0])
+
+
+def error_pars(msg: str):
+    print(f'{script_basename}: error: {msg}', file=stderr)
+    exit(1)
 
 
 def main():
@@ -17,18 +23,15 @@ def main():
     try:
         project_path = argv[1]
     except IndexError:
-        print('[X] Enter name', file=stderr)
-        exit(1)
+        error_pars('enter name')
 
     if not is_camel_case(project_path):
-        print(f'"{project_path}" is not CamelCase', file=stderr)
-        exit(1)
+        error_pars(f'"{project_path}" is not CamelCase')
 
     try:
         mkdir(project_path)
     except FileExistsError:
-        print(f'[X] Project <{project_path}> exists', file=stderr)
-        exit(1)
+        error_pars(f'project "{project_path}" exists')
 
     script_name = get_script_name(path.basename(project_path))
     github_nickname = subprocess.check_output(['git', 'config', 'user.name']).decode().strip()
@@ -47,24 +50,17 @@ def main():
 
     make_dirs(project_path, dirs)
     write_files(project_path, files)
-
     system(f'virtualenv {path.join(project_path, "venv")}')  # виртуальное окружение
     git_init(project_path)
 
-    if name == 'posix':
-        system(f'chmod u+x {path.join(project_path, script_name)}')  # разрешение на запуск
-        if '--link' in argv:
-            home_path = str(Path.home())
-            home_bin = path.join(home_path, 'bin')
+    if '--link' in argv:
+        try:
+            create_symbolic_link(project_path, script_name)
+        except FileNotFoundError as e:
+            error_pars(str(e))
 
-            # если существует папка /home/user/bin
-            if path.exists(home_bin) and path.isdir(home_bin):
-                # создает символическую ссылку в /home/user/bin
-                system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')
-
-        if '--secret' in argv:
-            # рекурсивно запрещает всем читать, изменять, выполнять проект
-            system(f'chmod og-rwx -R {project_path}')
+    if '--secret' in argv:
+        secret(project_path)
 
 
 if __name__ == '__main__':

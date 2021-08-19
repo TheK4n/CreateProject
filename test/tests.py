@@ -20,6 +20,9 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(get_script_name('.ImageCryptSave'), 'image-crypt-save')
         self.assertEqual(get_script_name('ImageCryptSave.'), 'image-crypt-save.')
 
+        self.assertEqual(get_script_name('_camelCase-'), '_camel-case')
+        self.assertEqual(get_script_name('-camelCase_'), 'camel-case_')
+
         self.assertEqual(get_script_name('ImageCryptSaveSegaMegaDriveUltraSuper'),
                          'image-crypt-save-sega-mega-drive-ultra-super')
 
@@ -34,6 +37,12 @@ class MyTestCase(unittest.TestCase):
         self.assertFalse(is_camel_case('camelcase'))
         self.assertFalse(is_camel_case('camel_case'))
         self.assertFalse(is_camel_case('camel-Case'))
+
+        self.assertTrue(is_camel_case('_camelCase-'))
+        self.assertTrue(is_camel_case('-camelCase_'))
+
+        self.assertFalse(is_camel_case('-camelcase_'))
+        self.assertFalse(is_camel_case('-CAMELCASE_'))
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
-from os import mkdir, path, system, chdir
+from os import mkdir, path, system, chdir, name
+from pathlib import Path
 
-__all__ = ['get_script_name', 'is_camel_case', 'make_dirs', 'write_files', 'git_init']
+__all__ = ['get_script_name', 'is_camel_case', 'make_dirs', 'write_files', 'git_init', 'create_symbolic_link', 'secret']
 
 
 def get_script_name(project_name: str, splitter: str = '-') -> str:
@@ -37,8 +38,8 @@ def get_script_name(project_name: str, splitter: str = '-') -> str:
 def is_camel_case(string):
 
     bid = False
-    for i in ['-', '_']:
-        if i in string:
+    for i in ['-', '_', '.']:
+        if i in string[1:-1]:
             bid = True
 
     return string != string.lower() and string != string.upper() and not bid
@@ -61,3 +62,23 @@ def git_init(project_path):
     system('git add .')
     system('git commit -m "Initial commit"')
     chdir('..')
+
+
+def create_symbolic_link(project_path, script_name: str):
+    home_path = str(Path.home())
+    home_bin = path.join(home_path, 'bin')
+
+    if name == 'posix':
+        system(f'chmod u+x {path.join(project_path, script_name)}')  # разрешение на запуск
+
+        # если существует папка /home/user/bin
+        if path.exists(home_bin) and path.isdir(home_bin):
+            # создает символическую ссылку в /home/user/bin
+            system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')
+        else:
+            raise FileNotFoundError(f'"{home_bin}" doesn\'t exists')
+
+
+def secret(project_path):
+    # рекурсивно запрещает всем читать, изменять, выполнять проект
+    system(f'chmod og-rwx -R {project_path}')
