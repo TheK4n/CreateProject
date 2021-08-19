@@ -2,7 +2,7 @@
 import subprocess
 from datetime import datetime
 
-from os import system, path, mkdir
+from os import system, path, mkdir, name
 from sys import argv, stderr
 
 from src.content import *
@@ -26,7 +26,7 @@ def main():
         error_pars('enter name')
 
     if not is_camel_case(project_path):
-        error_pars(f'"{project_path}" is not CamelCase')
+        error_pars(f'"{project_path}" must be CamelCase')
 
     try:
         mkdir(project_path)
@@ -53,14 +53,17 @@ def main():
     system(f'virtualenv {path.join(project_path, "venv")}')  # виртуальное окружение
     git_init(project_path)
 
-    if '--link' in argv:
-        try:
-            create_symbolic_link(project_path, script_name)
-        except FileNotFoundError as e:
-            error_pars(str(e))
+    if name == 'posix':
+        system(f'chmod u+x {path.join(project_path, script_name)}')  # разрешение на запуск
 
-    if '--secret' in argv:
-        secret(project_path)
+        if '--link' in argv:
+            try:
+                create_symbolic_link(project_path, script_name)
+            except FileNotFoundError as e:
+                error_pars(str(e))
+
+        if '--secret' in argv:
+            secret(project_path)
 
 
 if __name__ == '__main__':

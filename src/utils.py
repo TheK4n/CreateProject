@@ -1,4 +1,4 @@
-from os import mkdir, path, system, chdir, name
+from os import mkdir, path, system, chdir
 from pathlib import Path
 
 __all__ = ['get_script_name', 'is_camel_case', 'make_dirs', 'write_files', 'git_init', 'create_symbolic_link', 'secret']
@@ -68,15 +68,12 @@ def create_symbolic_link(project_path, script_name: str):
     home_path = str(Path.home())
     home_bin = path.join(home_path, 'bin')
 
-    if name == 'posix':
-        system(f'chmod u+x {path.join(project_path, script_name)}')  # разрешение на запуск
-
-        # если существует папка /home/user/bin
-        if path.exists(home_bin) and path.isdir(home_bin):
-            # создает символическую ссылку в /home/user/bin
-            system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')
-        else:
-            raise FileNotFoundError(f'"{home_bin}" doesn\'t exists')
+    # если существует папка /home/user/bin
+    if path.exists(home_bin) and path.isdir(home_bin):
+        # создает символическую ссылку в /home/user/bin
+        system(f'ln -s {path.abspath(path.join(project_path, script_name))} {home_bin}')
+    else:
+        raise FileNotFoundError(f'"{home_bin}" doesn\'t exists')
 
 
 def secret(project_path):
