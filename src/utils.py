@@ -2,7 +2,7 @@ from os import mkdir, path, system, chdir
 from pathlib import Path
 
 __all__ = ['get_script_name', 'is_camel_case', 'make_dirs', 'write_files',
-           'git_init', 'create_symbolic_link', 'secret', 'error_pars']
+           'git_init', 'create_symbolic_link', 'secret', 'error_pars', 'init_venv']
 
 from sys import stderr
 
@@ -38,8 +38,7 @@ def get_script_name(project_name: str, splitter: str = '-') -> str:
     return project_name.lower().strip('-').strip()
 
 
-def is_camel_case(string):
-
+def is_camel_case(string: str) -> bool:
     bid = False
     for i in ['-', '_', '.']:
         if i in string[1:-1]:
@@ -59,15 +58,17 @@ def write_files(project_path, files):
             f.write(content)
 
 
-def git_init(project_path, is_quiet=False):
+def git_init(project_path, is_quiet: bool = False) -> bool:
+    status = True
     chdir(project_path)
-    system(f'git init {"--quiet" if is_quiet else ""}')
-    system(f'git add . {"--quiet" if is_quiet else ""}')
-    system(f'git commit -m "Initial commit" {"--quiet" if is_quiet else ""}')
+    status = status and True if system(f'git init {"--quiet" if is_quiet else ""}') == 0 else False
+    status = status and True if system(f'git add . {"--quiet" if is_quiet else ""}') == 0 else False
+    status = status and True if system(f'git commit -m "Initial commit" {"--quiet" if is_quiet else ""}') == 0 else False
     chdir('..')
+    return status
 
 
-def create_symbolic_link(link_path):
+def create_symbolic_link(link_path) -> bool:
     home_path = str(Path.home())
     home_bin = path.join(home_path, 'bin')
 
@@ -75,18 +76,24 @@ def create_symbolic_link(link_path):
         # если существует папка /home/user/bin
         if path.exists(home_bin) and path.isdir(home_bin):
             # создает символическую ссылку в /home/user/bin
-            system(f'ln -s {link_path} {home_bin}')
+            return True if system(f'ln -s {link_path} {home_bin}') == 0 else False
         else:
             raise FileNotFoundError(f'"{home_bin}" doesn\'t exists')
     else:
         raise FileExistsError
 
 
-def secret(project_path):
+def secret(project_path) -> bool:
     # рекурсивно запрещает всем читать, изменять, выполнять проект
-    system(f'chmod og-rwx -R {project_path}')
+    return True if system(f'chmod og-rwx -R {project_path}') == 0 else False
 
 
-def error_pars(script_name, msg: str):
+def init_venv(project_path: str, is_quiet: bool) -> str:
+    venv_path = path.join(project_path, "venv")
+    system(f'virtualenv {venv_path} {"--quiet" if is_quiet else ""}')  # виртуальное окружение
+    return venv_path
+
+
+def error_pars(script_name: str, msg: str):
     print(f'{script_name}: error: {msg}', file=stderr)
     exit(1)
