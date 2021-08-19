@@ -1,7 +1,31 @@
-## CreateProject
+
+<h1 align="center">CreateProject</h1>
+
+<p align="center">
+  <a href="https://github.com/Pendosv">
+    <img src="https://img.shields.io/github/followers/Pendosv?label=Follow&style=social">
+  </a>
+  <a href="https://github.com/Pendosv/CreateProject">
+    <img src="https://img.shields.io/github/stars/Pendosv/CreateProject?style=social">
+  </a>
+</p>
+
+---
+
+## Content
+* [Project description](#chapter-0)
+* [Usage](#chapter-1)
+
+\
+<a id="chapter-0"></a>
+## Project description
 
 
-### **Usage:**
+Script creates python project in work directory
+
+\
+<a id="chapter-1"></a>
+## Usage
 
 ```bash
 create-project --help

@@ -175,10 +175,11 @@ readme_md = r'''<h1 align="center">{project_path}</h1>
 * [Installation](#chapter-1)  
 * [Usage](#chapter-2)
 
-
+\
 <a id="chapter-0"></a>
 ## Project description
 
+\
 <a id="chapter-1"></a>
 ## Installation
 
@@ -192,7 +193,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-
+\
 <a id="chapter-2"></a>
 ## Usage
 
