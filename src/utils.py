@@ -1,10 +1,10 @@
-from os import mkdir, path, system, chdir
+from os import mkdir, path, system, chdir, name
+from sys import stderr
 from pathlib import Path
+
 
 __all__ = ['get_script_name', 'is_camel_case', 'make_dirs', 'write_files',
            'git_init', 'create_symbolic_link', 'secret', 'error_pars', 'init_venv']
-
-from sys import stderr
 
 
 def get_script_name(project_name: str, splitter: str = '-') -> str:
@@ -48,7 +48,10 @@ def is_camel_case(string: str) -> bool:
 
 
 def to_null(is_quiet: bool) -> str:
-    return "1>/dev/null"if is_quiet else ""
+    if name == 'posix':
+        return "1>/dev/null"if is_quiet else ""
+    else:
+        return ''
 
 
 def make_dirs(project_path, dirs: list[str]):
