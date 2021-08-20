@@ -2,9 +2,9 @@ from os import mkdir, path, system, chdir, name
 from sys import stderr
 from pathlib import Path
 
-
 __all__ = ['get_script_name', 'is_camel_case', 'make_dirs', 'write_files',
-           'git_init', 'create_symbolic_link', 'secret', 'error_pars', 'init_venv']
+           'git_init', 'create_symbolic_link', 'secret', 'error_pars',
+           'init_venv', 'init_all']
 
 
 def get_script_name(project_name: str, splitter: str = '-') -> str:
@@ -47,9 +47,10 @@ def is_camel_case(string: str) -> bool:
     return string != string.lower() and string != string.upper() and not bid
 
 
-def error_pars(script_name: str, msg: str):
+def error_pars(script_name: str, msg: str, exit_code: int = 1):
     print(f'{script_name}: error: {msg}', file=stderr)
-    exit(1)
+    if exit_code != 0:
+        exit(exit_code)
     return
 
 
@@ -100,9 +101,15 @@ def create_symbolic_link(link_path) -> int:
         else:
             raise FileNotFoundError(f'"{home_bin}" doesn\'t exists')
     else:
-        raise FileExistsError
+        raise FileExistsError(f'{link_path} already exists')
 
 
 def secret(project_path) -> int:
     # рекурсивно запрещает всем читать, изменять, выполнять проект
     return system(f'chmod og-rwx -R {project_path}')
+
+
+def init_all(project_path, dirs, files, is_quiet=False):
+    make_dirs(project_path, dirs)
+    write_files(project_path, files)
+    init_venv(project_path, is_quiet)

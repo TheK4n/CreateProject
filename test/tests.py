@@ -16,7 +16,6 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(get_script_name('IMAGECryptTEST'), 'image-crypt-test')
 
         self.assertEqual(get_script_name('ImageCryptSave'), 'image-crypt-save')
-        self.assertEqual(get_script_name('ImageCryptSave'), 'image-crypt-save')
 
         self.assertEqual(get_script_name('.ImageCryptSave'), 'image-crypt-save')
         self.assertEqual(get_script_name('ImageCryptSave.'), 'image-crypt-save.')

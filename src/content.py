@@ -204,6 +204,12 @@ chmod u+x {script_name}
 
 '''
 
+
+gitattributes = '''# Auto detect text files and perform LF normalization
+* text=auto
+'''
+
+
 mit = r'''MIT License
 
 Copyright (c) {year} {github_nickname}

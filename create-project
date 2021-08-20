@@ -35,11 +35,11 @@ parser.add_argument('--license', dest='license_', action='store', default='mit',
 
 args = parser.parse_args()
 
+forbidden = ['src', 'test', 'README.md', 'requirements.txt', 'LICENSE', 'tests.py', 'utils.py',
+             'Dockerfile', '.git', '.gitignore', '.gitattributes', 'venv']
+
 
 def create_project(project_path):
-    forbidden = ['src', 'test', 'README.md', 'requirements.txt', 'LICENSE', 'tests.py', 'utils.py',
-                 'Dockerfile', '.git', '.gitignore', 'venv']
-
     if not is_camel_case(project_path):
         error_pars(parser.prog, f'"{project_path}" must be CamelCase')
         return
@@ -73,6 +73,7 @@ def create_project(project_path):
     dirs = ['test', 'src']
     files = (
         ('.gitignore', gitignore),
+        ('.gitattributes', gitattributes),
         ('README.md',
          readme_md.format(project_path=project_path, github_nickname=github_nickname, script_name=script_name)),
         (script_name, main_py),
@@ -82,10 +83,7 @@ def create_project(project_path):
         (path.join(dirs[1], 'utils.py'), utils_py)
     )
 
-    make_dirs(project_path, dirs)
-    write_files(project_path, files)
-    init_venv(project_path, args.quiet)
-    git_init(project_path, args.quiet)
+    init_all(project_path, dirs, files, args.quiet)
 
     if name == 'posix':
         system(f'chmod u+x {path.join(project_path, script_name)}')  # разрешение на запуск
@@ -96,14 +94,14 @@ def create_project(project_path):
             try:
                 create_symbolic_link(link_path)
             except FileNotFoundError as e:
-                error_pars(parser.prog, str(e))
-                return
-            except FileExistsError:
-                error_pars(parser.prog, f'{link_path} already exists')
-                return
+                error_pars(script_name, str(e), exit_code=0)
+            except FileExistsError as e:
+                error_pars(script_name, str(e), exit_code=0)
 
         if args.secure:
             secret(project_path)
+
+    git_init(project_path, args.quiet)  # last
 
 
 def main():
