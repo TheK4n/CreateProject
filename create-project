@@ -37,19 +37,23 @@ args = parser.parse_args()
 
 
 def create_project(project_path):
+    forbidden = ['src', 'test', 'README.md', 'requirements.txt', 'LICENSE', 'tests.py', 'utils.py',
+                 'Dockerfile', '.git', '.gitignore', 'venv']
+
     if not is_camel_case(project_path):
         error_pars(parser.prog, f'"{project_path}" must be CamelCase')
         return
 
     if args.script_name is None:
         script_name = get_script_name(path.basename(project_path))
+        if script_name in forbidden:
+            script_name += '_'
     else:
         if len(args.project_name) > 1 and args.create_link:
             error_pars(parser.prog, 'you can\'t use --create-link and --script-name together if more then 1 project')
             return
         else:
-            if args.script_name in ['src', 'test', 'README.md', 'requirements.txt', 'LICENSE', 'tests.py', 'utils.py',
-                                    'Dockerfile', '.git', '.gitignore', 'venv']:
+            if args.script_name in forbidden:
                 error_pars(parser.prog, f'you can\'t use script name "{args.script_name}"')
                 return
             else:
