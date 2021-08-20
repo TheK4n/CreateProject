@@ -47,6 +47,10 @@ def is_camel_case(string: str) -> bool:
     return string != string.lower() and string != string.upper() and not bid
 
 
+def to_null(is_quiet: bool) -> str:
+    return "1>/dev/null"if is_quiet else ""
+
+
 def make_dirs(project_path, dirs: list[str]):
     for i in dirs:
         mkdir(path.join(project_path, i))
@@ -59,11 +63,13 @@ def write_files(project_path, files):
 
 
 def git_init(project_path, is_quiet: bool = False) -> bool:
+    text_to_null = to_null(is_quiet)
+
     status = True
     chdir(project_path)
-    status = status and True if system(f'git init {"--quiet" if is_quiet else ""}') == 0 else False
-    status = status and True if system(f'git add . {"--quiet" if is_quiet else ""}') == 0 else False
-    status = status and True if system(f'git commit -m "Initial commit" {"--quiet" if is_quiet else ""}') == 0 else False
+    status = status and True if system(f'git init {text_to_null}') == 0 else False
+    status = status and True if system(f'git add . {text_to_null}') == 0 else False
+    status = status and True if system(f'git commit -m "Initial commit" {text_to_null}') == 0 else False
     chdir('..')
     return status
 
@@ -90,7 +96,7 @@ def secret(project_path) -> bool:
 
 def init_venv(project_path: str, is_quiet: bool) -> str:
     venv_path = path.join(project_path, "venv")
-    system(f'virtualenv {venv_path} {"--quiet" if is_quiet else ""}')  # виртуальное окружение
+    system(f'virtualenv {venv_path} {to_null(is_quiet)}')  # виртуальное окружение
     return venv_path
 
 

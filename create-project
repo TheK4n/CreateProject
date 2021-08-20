@@ -8,7 +8,6 @@ from os import system, path, mkdir, name
 from src.content import *
 from src.utils import *
 
-
 parser = argparse.ArgumentParser(description='Creates python project, initialize git repository '
                                              'and creates virtual environment')
 
@@ -38,7 +37,6 @@ args = parser.parse_args()
 
 
 def create_project(project_path):
-
     if not is_camel_case(project_path):
         error_pars(parser.prog, f'"{project_path}" must be CamelCase')
         return
@@ -50,7 +48,12 @@ def create_project(project_path):
             error_pars(parser.prog, 'you can\'t use --create-link and --script-name together if more then 1 project')
             return
         else:
-            script_name = args.script_name
+            if args.script_name in ['src', 'test', 'README.md', 'requirements.txt', 'LICENSE', 'tests.py', 'utils.py',
+                                    'Dockerfile', '.git', '.gitignore', 'venv']:
+                error_pars(parser.prog, f'you can\'t use script name "{args.script_name}"')
+                return
+            else:
+                script_name = args.script_name
 
     try:
         mkdir(project_path)
@@ -78,7 +81,7 @@ def create_project(project_path):
     make_dirs(project_path, dirs)
     write_files(project_path, files)
     init_venv(project_path, args.quiet)
-    git_init(project_path)
+    git_init(project_path, args.quiet)
 
     if name == 'posix':
         system(f'chmod u+x {path.join(project_path, script_name)}')  # разрешение на запуск
