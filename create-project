@@ -3,13 +3,15 @@ import subprocess
 from datetime import datetime
 import argparse
 
-from os import system, path, mkdir, name
+from os import system, path, name
 
 from src.content import *
 from src.utils import *
 
 parser = argparse.ArgumentParser(description='Creates python project, initialize git repository '
                                              'and creates virtual environment')
+
+mutually = parser.add_mutually_exclusive_group()
 
 parser.add_argument(dest='project_name', nargs='+',
                     help='name of python project (must be CamelCase)')
@@ -19,6 +21,12 @@ parser.add_argument('-s', '--secure', dest='secure', action='store_true',
 
 parser.add_argument('-q', '--quiet', dest='quiet', action='store_true',
                     help='quiet mode')
+
+mutually.add_argument('-f', dest='ask_force', action='store_true',
+                      help='asks to re-write existing project')
+
+mutually.add_argument('--force', dest='no_ask_force', action='store_true',
+                      help='NO asks re-write existing project')
 
 parser.add_argument('--create-link', dest='create_link', action='store_true',
                     help='creates symbolic link in ~/bin')
@@ -59,11 +67,7 @@ def create_project(project_path):
             else:
                 script_name = args.script_name
 
-    try:
-        mkdir(project_path)
-    except FileExistsError:
-        error_pars(parser.prog, f'project "{project_path}" already exists')
-        return
+    create_project_path(parser.prog, project_path, args, args.quiet)
 
     if args.git_login is None:
         github_nickname = subprocess.check_output(['git', 'config', 'user.name']).decode().strip()
@@ -88,6 +92,9 @@ def create_project(project_path):
     if name == 'posix':
         system(f'chmod u+x {path.join(project_path, script_name)}')  # разрешение на запуск
 
+        if args.secure:
+            secret(project_path)
+
         if args.create_link:
 
             link_path = path.abspath(path.join(project_path, script_name))
@@ -98,15 +105,17 @@ def create_project(project_path):
             except FileExistsError as e:
                 error_pars(script_name, str(e), exit_code=0)
 
-        if args.secure:
-            secret(project_path)
-
     git_init(project_path, args.quiet)  # last
+    if not args.quiet:
+        print(f'project "{project_path}" created')
 
 
 def main():
     for project in args.project_name:
-        create_project(project)
+        try:
+            create_project(project)
+        except StopIteration:
+            pass
 
 
 if __name__ == '__main__':
