@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-import subprocess
-from datetime import datetime
 import argparse
-
-from os import system, path, name
+import sys
 
 from src.content import *
-from src.utils import *
+from src.CreateProject import CreateProjectCreator, CreateProject
+
+from src.CreateProject import MutualOptionsError, NotCamelCaseError, ForbiddenScriptNameError
+
 
 parser = argparse.ArgumentParser(description='Creates python project, initialize git repository '
                                              'and creates virtual environment')
@@ -43,79 +43,25 @@ parser.add_argument('--license', dest='license_', action='store', default='mit',
 
 args = parser.parse_args()
 
-forbidden = ['src', 'test', 'README.md', 'requirements.txt', 'LICENSE', 'tests.py', 'utils.py',
-             'Dockerfile', '.git', '.gitignore', '.gitattributes', 'venv']
 
-
-def create_project(project_path):
-    if not is_camel_case(project_path):
-        error_pars(parser.prog, f'"{project_path}" must be CamelCase')
-        return
-
-    if args.script_name is None:
-        script_name = get_script_name(path.basename(project_path))
-        if script_name in forbidden:
-            script_name += '_'
-    else:
-        if len(args.project_name) > 1 and args.create_link:
-            error_pars(parser.prog, 'you can\'t use --create-link and --script-name together if more then 1 project')
-            return
-        else:
-            if args.script_name in forbidden:
-                error_pars(parser.prog, f'you can\'t use script name "{args.script_name}"')
-                return
-            else:
-                script_name = args.script_name
-
-    create_project_path(parser.prog, project_path, args, args.quiet)
-
-    if args.git_login is None:
-        github_nickname = subprocess.check_output(['git', 'config', 'user.name']).decode().strip()
-    else:
-        github_nickname = args.git_login
-
-    dirs = ['test', 'src']
-    files = (
-        ('.gitignore', gitignore),
-        ('.gitattributes', gitattributes),
-        ('README.md',
-         readme_md.format(project_path=project_path, github_nickname=github_nickname, script_name=script_name)),
-        (script_name, main_py),
-        ('requirements.txt', ''),
-        ('LICENSE', licenses[args.license_].format(year=datetime.now().year, github_nickname=github_nickname)),
-        (path.join(dirs[0], 'tests.py'), tests_py),
-        (path.join(dirs[1], 'utils.py'), utils_py)
-    )
-
-    init_all(project_path, dirs, files, args.quiet)
-
-    if name == 'posix':
-        system(f'chmod u+x {path.join(project_path, script_name)}')  # разрешение на запуск
-
-        if args.secure:
-            secret(project_path)
-
-        if args.create_link:
-
-            link_path = path.abspath(path.join(project_path, script_name))
-            try:
-                create_symbolic_link(link_path)
-            except FileNotFoundError as e:
-                error_pars(script_name, str(e), exit_code=0)
-            except FileExistsError as e:
-                error_pars(script_name, str(e), exit_code=0)
-
-    git_init(project_path, args.quiet)  # last
-    if not args.quiet:
-        print(f'project "{project_path}" created')
+def parse_error(msg):
+    print(f'{CreateProject.create_project_script_name}: error: {msg}', file=sys.stderr)
 
 
 def main():
     for project in args.project_name:
         try:
-            create_project(project)
+            CreateProjectCreator(project, args)
         except StopIteration:
             pass
+        except NotCamelCaseError as e:
+            parse_error(e)
+        except MutualOptionsError as e:
+            parse_error(e)
+            exit(1)
+        except ForbiddenScriptNameError as e:
+            parse_error(e)
+            exit(1)
 
 
 if __name__ == '__main__':

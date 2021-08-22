@@ -1,5 +1,8 @@
 import unittest
-from src.utils import *
+from src.CreateProject import CreateProject
+
+get_script_name = CreateProject.get_script_name
+is_camel_case = CreateProject.is_camel_case
 
 
 class MyTestCase(unittest.TestCase):
