@@ -143,7 +143,7 @@ utils_py = '''__all__ = []
 
 '''
 
-tests_py = fr'''import unittest
+unittests_py = fr'''import unittest
 from src.utils import *
 
 
@@ -156,6 +156,24 @@ if __name__ == '__main__':
     unittest.main()
 
 '''
+
+
+timetests_py = '''from timeit import timeit
+from src.utils import *
+
+
+def main():
+    trials = 10_000_000
+    kwargs = {'setup': 'x=1', 'globals': globals(), 'number': trials}
+    
+    seconds = timeit('bool(x)', **kwargs)
+    print(f'{seconds=:.02f}')
+
+
+if __name__ == '__main__':
+    main()
+'''
+
 
 readme_md = r'''<h1 align="center">{project_path}</h1>
 

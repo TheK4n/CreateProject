@@ -60,7 +60,8 @@ create-project Project{1..3} -sq
     ├── src
     │   └── utils.py
     ├── test
-    │   └── tests.py
-    ├── env
+    │   ├── unittests.py
+    │   └── timetests.py
+    ├── venv
     └── .git
 ```

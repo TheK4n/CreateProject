@@ -104,7 +104,8 @@ class CreateProject:
 
 
 class CreateProjectParser(CreateProject):
-    __FORBIDDEN_SCRIPT_NAME = ['src', 'test', 'README.md', 'requirements.txt', 'LICENSE', 'tests.py', 'utils.py',
+    __FORBIDDEN_SCRIPT_NAME = ['src', 'test', 'README.md', 'requirements.txt', 'LICENSE', 'timetests.py',
+                               'unittests.py', 'utils.py',
                                'Dockerfile', '.git', '.gitignore', '.gitattributes', 'venv']
 
     def __init__(self, project_path: str, args: Namespace):
@@ -223,7 +224,8 @@ class CreateProjectCreator(CreateProjectParser):
             ('requirements.txt', ''),
             ('LICENSE', licenses[self.__args.license_].format(year=datetime.now().year,
                                                               github_nickname=self.github_nickname)),
-            (path.join(self._dirs[0], 'tests.py'), tests_py),
+            (path.join(self._dirs[0], 'unittests.py'), unittests_py),
+            (path.join(self._dirs[0], 'timetests.py'), timetests_py),
             (path.join(self._dirs[1], 'utils.py'), utils_py)
         )
         for filename, content in self.files:
