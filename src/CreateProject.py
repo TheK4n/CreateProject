@@ -28,7 +28,7 @@ class CreateProject:
     def __init__(self, project_path: str):
 
         if not self.is_camel_case(project_path):
-            raise NotCamelCaseError(f'{project_path} must be CamelCase')
+            raise NotCamelCaseError(f'"{project_path}" must be CamelCase')
         else:
             self.__project_path = project_path
 
@@ -154,7 +154,7 @@ class CreateProjectCreator(CreateProjectParser):
 
             script_name_path = path.join(self.project_path, self._script_name)
 
-            system(f'chmod u+x {script_name_path}')  # разрешение на запуск
+            system(f'chmod u+x "{script_name_path}"')  # разрешение на запуск
 
             if self.__args.secure:
                 self.__make_secret()
@@ -187,7 +187,7 @@ class CreateProjectCreator(CreateProjectParser):
             return self._try_mkdir()
         except FileExistsError:
             if self.__args.no_ask_force:
-                system(f'rm -rf {self.project_path}')
+                system(f'rm -rf "{self.project_path}"')
                 if not self._is_quiet:
                     print(f'project "{self.project_path}" removed')
                 self._try_mkdir()
@@ -197,7 +197,7 @@ class CreateProjectCreator(CreateProjectParser):
                     f'{self.create_project_script_name}: re-write existing project "{self.project_path}"? [Y/n] ')
 
                 if ans in {'Y', 'y'}:
-                    system(f'rm -rf {self.project_path}')
+                    system(f'rm -rf "{self.project_path}"')
                     if not self._is_quiet:
                         print(f'project "{self.project_path}" removed')
                     self._try_mkdir()
@@ -234,7 +234,7 @@ class CreateProjectCreator(CreateProjectParser):
 
     def __init_venv(self) -> str:
         venv_path = path.join(self.project_path, "venv")
-        system(self._be_quiet(f'virtualenv {venv_path}'))  # виртуальное окружение
+        system(self._be_quiet(f'virtualenv "{venv_path}"'))  # виртуальное окружение
         return venv_path
 
     @staticmethod
@@ -246,11 +246,11 @@ class CreateProjectCreator(CreateProjectParser):
             # если существует папка /home/user/bin
             if path.exists(home_bin) and path.isdir(home_bin):
                 # создает символическую ссылку в /home/user/bin
-                return system(f'ln -s {link_path} {home_bin}')
+                return system(f'ln -s "{link_path}" "{home_bin}"')
             else:
                 raise FileNotFoundError(f'"{home_bin}" doesn\'t exists')
         else:
-            raise FileExistsError(f'{link_path} already exists')
+            raise FileExistsError(f'"{link_path}" already exists')
 
     def __git_init(self):
         chdir(self.project_path)
@@ -261,4 +261,4 @@ class CreateProjectCreator(CreateProjectParser):
 
     def __make_secret(self) -> int:
         """рекурсивно запрещает всем читать, изменять, выполнять проект"""
-        return system(f'chmod og-rwx -R {self.project_path}')
+        return system(f'chmod og-rwx -R "{self.project_path}"')
