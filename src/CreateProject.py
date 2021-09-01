@@ -42,7 +42,7 @@ class CreateProject:
     @staticmethod
     def is_camel_case(project_name: str) -> bool:
         bid = False
-        for i in ['-', '_', '.']:
+        for i in ['-', '_', '.', '/']:
             if i in project_name[1:-1]:
                 bid = True
         return project_name != project_name.lower() and project_name != project_name.upper() and not bid
