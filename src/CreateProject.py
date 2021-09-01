@@ -214,7 +214,7 @@ class CreateProjectCreator(CreateProjectParser):
 
     def __write_files(self):
 
-        self.files = (
+        files = (
             ('.gitignore', gitignore),
             ('.gitattributes', gitattributes),
             ('README.md',
@@ -228,7 +228,7 @@ class CreateProjectCreator(CreateProjectParser):
             (path.join(self._dirs[0], 'timetests.py'), timetests_py),
             (path.join(self._dirs[1], 'utils.py'), utils_py)
         )
-        for filename, content in self.files:
+        for filename, content in files:
             with open(path.join(self.project_path, filename), 'w') as f:
                 f.write(content)
 
@@ -260,5 +260,5 @@ class CreateProjectCreator(CreateProjectParser):
         chdir('..')
 
     def __make_secret(self) -> int:
-        # рекурсивно запрещает всем читать, изменять, выполнять проект
+        """рекурсивно запрещает всем читать, изменять, выполнять проект"""
         return system(f'chmod og-rwx -R {self.project_path}')
