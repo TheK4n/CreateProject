@@ -3,6 +3,8 @@ from argparse import Namespace
 from datetime import datetime
 from os import mkdir, chdir, system, path
 from os import name as os_name
+from shutil import rmtree
+
 from pathlib import Path
 from sys import stderr
 
@@ -28,7 +30,7 @@ class CreateProject:
     def __init__(self, project_path: str):
 
         if not self.is_camel_case(project_path):
-            raise NotCamelCaseError(f'\'{project_path}\' must be CamelCase')
+            raise NotCamelCaseError(f'\'{path.basename(project_path)}\' must be CamelCase')
         else:
             self.__project_path = project_path
 
@@ -39,11 +41,15 @@ class CreateProject:
     def project_path(self):
         return self.__project_path
 
+    @property
+    def base_project_path(self):
+        return path.basename(self.__project_path)
+
     @staticmethod
     def is_camel_case(project_name: str) -> bool:
         bid = False
         for i in ['-', '_', '.', '/']:
-            if i in project_name[1:-1]:
+            if i in path.basename(project_name)[1:-1]:
                 bid = True
         return project_name != project_name.lower() and project_name != project_name.upper() and not bid
 
@@ -171,7 +177,7 @@ class CreateProjectCreator(CreateProjectParser):
 
         self.__git_init()  # last
         if not self.__args.quiet:
-            print(f'project \'{self.project_path}\' created')
+            print(f'project \'{self.base_project_path}\' created')
 
     def _try_mkdir(self):
         try:
@@ -187,7 +193,7 @@ class CreateProjectCreator(CreateProjectParser):
             return self._try_mkdir()
         except FileExistsError:
             if self.__args.no_ask_force:
-                system(f'rm -rf \'{self.project_path}\'')
+                rmtree(self.project_path)
                 if not self._is_quiet:
                     print(f'project \'{self.project_path}\' removed')
                 self._try_mkdir()
@@ -197,7 +203,7 @@ class CreateProjectCreator(CreateProjectParser):
                     f'{self.create_project_script_name}: re-write existing project \'{self.project_path}\'? [Y/n] ')
 
                 if ans in {'Y', 'y'}:
-                    system(f'rm -rf \'{self.project_path}\'')
+                    rmtree(self.project_path)
                     if not self._is_quiet:
                         print(f'project \'{self.project_path}\' removed')
                     self._try_mkdir()
@@ -207,6 +213,9 @@ class CreateProjectCreator(CreateProjectParser):
             else:
                 self._error_pars(f'project \'{self.project_path}\' already exists, use -f', exit_code=0)
                 raise StopIteration
+        except FileNotFoundError:
+            self._error_pars(f'no such directory \'{path.dirname(self.project_path)}\'', exit_code=1)
+            raise StopIteration
 
     def __make_dirs(self):
         for i in self._dirs:
