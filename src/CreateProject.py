@@ -23,6 +23,10 @@ class ForbiddenScriptNameError(Exception):
     pass
 
 
+class CommandNotFoundError(Exception):
+    pass
+
+
 class CreateProject:
     create_project_script_name = 'create-project'
     _dirs = ['test', 'src']
@@ -154,7 +158,14 @@ class CreateProjectCreator(CreateProjectParser):
 
         self.__make_dirs()
         self.__write_files()
-        self.__init_venv()
+        try:
+            self.__init_venv()
+        except CommandNotFoundError as e:
+            self._error_pars(str(e), exit_code=0)
+        try:
+            self.__git_init()  # last
+        except CommandNotFoundError as e:
+            self._error_pars(str(e), exit_code=0)
 
         if os_name == 'posix':
 
@@ -175,7 +186,6 @@ class CreateProjectCreator(CreateProjectParser):
                 except FileExistsError as e:
                     self._error_pars(str(e), exit_code=0)
 
-        self.__git_init()  # last
         if not self.__args.quiet:
             print(f'project \'{self.base_project_path}\' created')
 
@@ -242,6 +252,10 @@ class CreateProjectCreator(CreateProjectParser):
                 f.write(content)
 
     def __init_venv(self) -> str:
+
+        if system('which virtualenv 1>/dev/null') != 0:
+            raise CommandNotFoundError('command "virtualenv" not found so virtual environment can\'t be created')
+
         venv_path = path.join(self.project_path, "venv")
         system(self._be_quiet(f'virtualenv \'{venv_path}\''))  # виртуальное окружение
         return venv_path
@@ -262,6 +276,10 @@ class CreateProjectCreator(CreateProjectParser):
             raise FileExistsError(f'\'{link_path}\' already exists')
 
     def __git_init(self):
+
+        if system('which git 1>/dev/null') != 0:
+            raise CommandNotFoundError('command "git" not found so git repository can\'t be created')
+
         chdir(self.project_path)
         system(self._be_quiet(f'git init'))
         system(self._be_quiet(f'git add .'))
