@@ -158,12 +158,9 @@ class CreateProjectCreator(CreateProjectParser):
 
         self.__make_dirs()
         self.__write_files()
+
         try:
             self.__init_venv()
-        except CommandNotFoundError as e:
-            self._error_pars(str(e), exit_code=0)
-        try:
-            self.__git_init()  # last
         except CommandNotFoundError as e:
             self._error_pars(str(e), exit_code=0)
 
@@ -185,6 +182,11 @@ class CreateProjectCreator(CreateProjectParser):
                     self._error_pars(str(e), exit_code=0)
                 except FileExistsError as e:
                     self._error_pars(str(e), exit_code=0)
+
+        try:
+            self.__git_init()  # last
+        except CommandNotFoundError as e:
+            self._error_pars(str(e), exit_code=0)
 
         if not self.__args.quiet:
             print(f'project \'{self.base_project_path}\' created')
@@ -284,6 +286,7 @@ class CreateProjectCreator(CreateProjectParser):
         system(self._be_quiet(f'git init'))
         system(self._be_quiet(f'git add .'))
         system(self._be_quiet(f'git commit -m "Initial commit"'))
+        system(f'git checkout -b "dev" 2>/dev/null')
         chdir('..')
 
     def __make_secret(self) -> int:
