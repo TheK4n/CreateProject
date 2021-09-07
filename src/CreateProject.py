@@ -286,7 +286,7 @@ class CreateProjectCreator(CreateProjectParser):
         system(self._be_quiet(f'git init'))
         system(self._be_quiet(f'git add .'))
         system(self._be_quiet(f'git commit -m "Initial commit"'))
-        system(f'git checkout -b "dev" $>/dev/null')
+        system(f'git checkout -b "dev" &>/dev/null')
         chdir('..')
 
     def __make_secret(self) -> int:
