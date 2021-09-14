@@ -255,7 +255,7 @@ class CreateProjectCreator(CreateProjectParser):
 
     def __init_venv(self) -> str:
 
-        if system('virtualenv --help &>/dev/null') != 0:
+        if system('virtualenv --help 1>/dev/null 2>&1') != 0:
             raise CommandNotFoundError('command "virtualenv" not found so virtual environment can\'t be created')
 
         venv_path = path.join(self.project_path, "venv")
@@ -279,14 +279,14 @@ class CreateProjectCreator(CreateProjectParser):
 
     def __git_init(self):
 
-        if system('git --help &>/dev/null') != 0:
+        if system('git --help 1>/dev/null 2>&1') != 0:
             raise CommandNotFoundError('command "git" not found so git repository can\'t be created')
 
         chdir(self.project_path)
         system(self._be_quiet(f'git init'))
         system(self._be_quiet(f'git add .'))
         system(self._be_quiet(f'git commit -m "Initial commit"'))
-        system(f'git checkout -b "dev" &>/dev/null')
+        system(f'git checkout -b "dev" 1>/dev/null 2>&1')
         chdir('..')
 
     def __make_secret(self) -> int:
