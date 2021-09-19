@@ -2,11 +2,11 @@
 <h1 align="center">CreateProject</h1>
 
 <p align="center">
-  <a href="https://github.com/Pendosv">
-    <img src="https://img.shields.io/github/followers/Pendosv?label=Follow&style=social">
+  <a href="https://github.com/TheK4n">
+    <img src="https://img.shields.io/github/followers/TheK4n?label=Follow&style=social">
   </a>
-  <a href="https://github.com/Pendosv/CreateProject">
-    <img src="https://img.shields.io/github/stars/Pendosv/CreateProject?style=social">
+  <a href="https://github.com/TheK4n/CreateProject">
+    <img src="https://img.shields.io/github/stars/TheK4n/CreateProject?style=social">
   </a>
 </p>
 
