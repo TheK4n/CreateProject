@@ -263,10 +263,11 @@ class CreateProjectCreator(CreateProjectParser):
         if self.__args.venv_path is None:
             venv_path = path.join(self.project_path, "venv")
         else:
-            if not path.exists(self.__args.venv_path):
-                venv_path = self.__args.venv_path
-            else:
-                raise FileExistsError(f'path "{self.__args.venv_path}" exists, so virtual environment can\'t be created')
+            if path.exists(self.__args.venv_path):
+                raise FileExistsError(
+                    f'path "{self.__args.venv_path}" exists, so virtual environment can\'t be created')
+            venv_path = self.__args.venv_path
+
         system(self._be_quiet(f'virtualenv \'{venv_path}\''))  # виртуальное окружение
         return venv_path
 
