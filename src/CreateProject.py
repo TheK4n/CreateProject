@@ -163,6 +163,8 @@ class CreateProjectCreator(CreateProjectParser):
             self.__init_venv()
         except CommandNotFoundError as e:
             self._error_pars(str(e), exit_code=0)
+        except FileExistsError as e:
+            self._error_pars(str(e), exit_code=0)
 
         if os_name == 'posix':
 
@@ -258,7 +260,13 @@ class CreateProjectCreator(CreateProjectParser):
         if system('virtualenv --help 1>/dev/null 2>&1') != 0:
             raise CommandNotFoundError('command "virtualenv" not found so virtual environment can\'t be created')
 
-        venv_path = path.join(self.project_path, "venv")
+        if self.__args.venv_path is None:
+            venv_path = path.join(self.project_path, "venv")
+        else:
+            if not path.exists(self.__args.venv_path):
+                venv_path = self.__args.venv_path
+            else:
+                raise FileExistsError(f'path "{self.__args.venv_path}" exists, so virtual environment can\'t be created')
         system(self._be_quiet(f'virtualenv \'{venv_path}\''))  # виртуальное окружение
         return venv_path
 

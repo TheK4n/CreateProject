@@ -36,6 +36,9 @@ parser.add_argument('--script-name', dest='script_name', action='store', default
 parser.add_argument('--git-login', dest='git_login', action='store', default=None,
                     help='GitHub login')
 
+parser.add_argument('--venv-path', dest='venv_path', action='store', default=None,
+                    help='Virtual Environment path')
+
 parser.add_argument('--license', dest='license_', action='store', default='mit',
                     choices=list(licenses.keys()),
                     help='license for your project')
