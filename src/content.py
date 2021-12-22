@@ -143,7 +143,7 @@ utils_py = '''__all__ = []
 
 '''
 
-unittests_py = fr'''import unittest
+unittests_py = r'''import unittest
 from src.utils import *
 
 
@@ -165,7 +165,7 @@ from src.utils import *
 def main():
     trials = 10_000_000
     kwargs = {'setup': 'x=1', 'globals': globals(), 'number': trials}
-    
+
     seconds = timeit('bool(x)', **kwargs)
     print(f'{seconds=:.02f}')
 
@@ -225,6 +225,31 @@ chmod u+x {script_name}
 
 '''
 
+dockerfile = r'''
+FROM python:3.9
+
+RUN mkdir -p /usr/src/app/
+WORKDIR /usr/src/app/
+
+COPY . /usr/src/app/
+RUN pip install --no-cache-dir -r requirements.txt
+
+CMD ["python", "{script_name}"]
+'''
+
+docker_compose_yaml = r'''
+version "0.1":
+
+services:
+  serv:
+    build: .
+    ports:
+      - 5000:5000
+    restart: always
+    env_file:
+      - ./.env
+
+'''
 
 gitattributes = '''# Auto detect text files and perform LF normalization
 * text=auto

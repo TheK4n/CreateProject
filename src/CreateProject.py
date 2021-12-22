@@ -249,7 +249,10 @@ class CreateProjectCreator(CreateProjectParser):
                                                               github_nickname=self.github_nickname)),
             (path.join(self._dirs[0], 'unittests.py'), unittests_py),
             (path.join(self._dirs[0], 'timetests.py'), timetests_py),
-            (path.join(self._dirs[1], 'utils.py'), utils_py)
+            (path.join(self._dirs[1], 'utils.py'), utils_py),
+            ("Dockerfile", dockerfile.format(script_name=self._script_name)),
+            ("docker-compose.yaml", docker_compose_yaml),
+            (".env", "")
         )
         for filename, content in files:
             with open(path.join(self.project_path, filename), 'w') as f:
