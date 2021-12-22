@@ -63,11 +63,14 @@ create-project Project{1..3} -sq
     │   ├── unittests.py
     │   └── timetests.py
     ├── venv
-    └── .git
+    ├── .git
+    ├── Dockerfile
+    ├── docker-compose.yaml
+    └── Makefile
 ```
 
 ## RoadMap:
-* Dockerfile
-* Makefile
+* [+] Dockerfile
+* [+] Makefile
 
 <h1 align="center"><a href="#top">▲</a></h1>

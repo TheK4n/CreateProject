@@ -251,6 +251,24 @@ services:
 
 '''
 
+makefile = r'''
+PREFIX = ~/bin
+SCNAME = {script_name}
+
+all: install
+
+install:
+	python3 -m pip install -r requirements.txt
+	chmod u+x $(SCNAME)
+	ln -s $(PWD)/$(SCNAME) $(PREFIX)/$(SCNAME)
+
+uninstall:
+	rm $(PREFIX)/$(SCNAME)
+
+clean:
+	rm -rf README.md .github .git .gitignore LICENSE
+'''
+
 gitattributes = '''# Auto detect text files and perform LF normalization
 * text=auto
 '''

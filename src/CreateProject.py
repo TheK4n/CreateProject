@@ -252,7 +252,8 @@ class CreateProjectCreator(CreateProjectParser):
             (path.join(self._dirs[1], 'utils.py'), utils_py),
             ("Dockerfile", dockerfile.format(script_name=self._script_name)),
             ("docker-compose.yaml", docker_compose_yaml),
-            (".env", "")
+            (".env", ""),
+            ("Makefile", makefile.format(script_name=self._script_name))
         )
         for filename, content in files:
             with open(path.join(self.project_path, filename), 'w') as f:
