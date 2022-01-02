@@ -116,7 +116,7 @@ class CreateProject:
 class CreateProjectParser(CreateProject):
     __FORBIDDEN_SCRIPT_NAME = ['src', 'test', 'README.md', 'requirements.txt', 'LICENSE', 'timetests.py',
                                'unittests.py', 'utils.py',
-                               'Dockerfile', '.git', '.gitignore', '.gitattributes', 'venv']
+                               'Dockerfile', '.git', '.gitignore', '.dockerignore', '.gitattributes', 'venv']
 
     def __init__(self, project_path: str, args: Namespace):
         super().__init__(project_path)
@@ -253,7 +253,8 @@ class CreateProjectCreator(CreateProjectParser):
             ("Dockerfile", dockerfile.format(script_name=self._script_name)),
             ("docker-compose.yaml", docker_compose_yaml),
             (".env", ""),
-            ("Makefile", makefile.format(script_name=self._script_name))
+            ("Makefile", makefile.format(script_name=self._script_name)),
+            ('.dockerignore', dockerignore)
         )
         for filename, content in files:
             with open(path.join(self.project_path, filename), 'w') as f:

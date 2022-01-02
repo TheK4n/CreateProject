@@ -125,6 +125,33 @@ _trial_temp
 
 '''
 
+dockerignore = '''
+.env
+.git
+.gitignore
+venv
+*.py[cod]
+__pycache__
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+
+### Vim template
+[._]*.s[a-v][a-z]
+!*.svg  # comment out if you don't need vector files
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+Sessionx.vim
+
+
+'''
+
 main_py = r'''#!/usr/bin/env python3
 
 from sys import argv
